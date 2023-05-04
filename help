@@ -1,0 +1,59 @@
+python -m pip freeze > requirements.txt
+pip install -r requirements.txt
+
+УЛУЧШЕННАЯ КОНСОЛЬ 'DJANGO-EXTENSIONS'
+-----------
+1-УСТАНОВКА
+pip install django-extensions
+-----------
+2-добавляем в приложения
+INSTALLED_APPS = (
+    ...
+    'django_extensions',
+)
+-----------
+3-ЗАПУСК В ТЕРМИНАЛЕ
+python manage.py shell_plus
+ИЛИ
+python manage.py shell_plus --print-sql
+
+=========================================================================
+МИГРАЦИЯ
+Проводится при создании или изменении структуры Моделей_БД
+-----------------------------------------------------------------
+python manage.py makemigrations
+
+python manage.py migrate
+=========================================================================
+SLUG
+
+# ИМПОРТ 'slugify' В "MODELS.PY".
+from django.utils.text import slugify
+
+# Добавляем в Модель.Movie поле 'slug'.
+class Movie(models.Model):
+    ****
+    slug = models.SlugField(default='', null=False)
+
+# Добавляем в Модель метод 'save'.
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Movie, self).save(*args, **kwargs)
+# -----------------------------------------------------------------------
+# В ФАЙЛЕ "URLS.PY" меняем 'path'==>>>.
+#
+path('movie/<int:id_movie>', views.show_one_movie, name="movie_info"),
+на ==>>>
+path('movie/<slug:slug_movie>', views.show_one_movie, name="movie_info"),
+#
+# ------------------------------------------------------------------------
+# В ФАЙЛЕ "VIEWS.PY" меняем 'path'==>>>.
+#
+#def show_one_movie(request, id_movie: int):
+def show_one_movie(request, slug_movie: str):
+    # movie = Movie.objects.get(id=id_movie)
+    movie = Movie.objects.get(slug=slug_movie)
+
+    rez = {"movie": movie}
+    return render(request, 'movie_app/one_movie.html', context=rez)
+# ------------------------------------------------------------------------
